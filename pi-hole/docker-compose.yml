@@ -22,6 +22,7 @@ services:
       FTLCONF_webserver_api_password: null
       # If using Docker's default `bridge` network setting the dns listening mode should be set to 'ALL'
       FTLCONF_dns_listeningMode: 'ALL'
+      FTLCONF_dns_upstreams: 127.0.0.1#5335;127.0.0.1#5335
     # Volumes store your data between container upgrades
     volumes:
       # For persisting Pi-hole's databases and common configuration file
@@ -37,3 +38,13 @@ services:
       # Optional, if Pi-hole should get some more processing time
       - SYS_NICE
     restart: unless-stopped
+
+  unbound:
+    image: alpinelinux/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    # Share Pi-hole's network stack
+    network_mode: service:pihole
+    volumes:
+    # Specify a custom read-only configuration file for unbound
+      - ./etc/unbound/unbound.conf:/etc/unbound/unbound.conf:ro
